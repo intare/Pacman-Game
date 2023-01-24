@@ -8,4 +8,5 @@ The game will consist of Game Logic, I/O and Sound Effects. The game logic consi
 
 ## Dependencies
 audioplayers: ^0.17.0
+
 flutter_phoenix: ^0.1.0
