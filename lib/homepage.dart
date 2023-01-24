@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:pacman/path.dart';
+import 'package:pacman/pixel.dart';
+import 'package:pacman/player.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   static int numberInRow = 11;
   int numberOfSquares = numberInRow * 17;
+  int player = numberInRow * 15 + 1;
 
   List<int> barriers = [
     0,
@@ -93,10 +99,12 @@ class _HomePageState extends State<HomePage> {
     121,
     120,
     109,
+    131,
     87,
     76,
     65,
     43,
+    54,
     32,
     21,
     24,
@@ -114,41 +122,108 @@ class _HomePageState extends State<HomePage> {
     63,
   ];
 
+  String direction = 'right';
+
+  void startGame() {
+    Timer.periodic(const Duration(milliseconds: 150), (timer) {
+      switch (direction) {
+        case 'left':
+          moveLeft();
+          break;
+        case 'right':
+          moveRight;
+          break;
+        case 'up':
+          moveUp;
+          break;
+        case 'down':
+          moveDown;
+          break;
+      }
+    });
+  }
+
+  void moveLeft() {
+    if (!barriers.contains(player - 1)) {
+      setState(() {
+        player--;
+      });
+    }
+  }
+
+  void moveRight() {
+    if (!barriers.contains(player + 1)) {
+      setState(() {
+        player++;
+      });
+    }
+  }
+
+  void moveUp() {
+    if (!barriers.contains(player + numberInRow)) {
+      setState(() {
+        player += numberInRow;
+      });
+    }
+  }
+
+  void moveDown() {
+    if (!barriers.contains(player - numberInRow)) {
+      setState(() {
+        player -= numberInRow;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: Colors.black,
       body: Column(
         children: [
           Expanded(
-            flex: 150,
-            child: Container(
-              child: GridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: numberOfSquares,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: numberInRow),
-                itemBuilder: (BuildContext context, int index) {
-                  if (barriers.contains(index)) {
-                    return Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Container(
-                          color: Colors.blue,
-                          child: Center(
-                            child: Text(index.toString()),
-                          )),
-                    );
-                  } else {
-                    return Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Container(
-                          color: Colors.grey,
-                          child: Center(
-                            child: Text(index.toString()),
-                          )),
-                    );
-                  }
-                },
+            flex: 23,
+            child: GestureDetector(
+              onVerticalDragUpdate: (details) {
+                if (details.delta.dy > 0) {
+                  direction = 'down';
+                } else if (details.delta.dy < 0) {
+                  direction = 'up';
+                }
+                //print(direction);
+              },
+              onHorizontalDragUpdate: (details) {
+                if (details.delta.dy > 0) {
+                  direction = 'right';
+                } else if (details.delta.dy < 0) {
+                  direction = 'left';
+                }
+                //print(direction);
+              },
+              child: Container(
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: numberOfSquares,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: numberInRow),
+                  itemBuilder: (BuildContext context, int index) {
+                    if (player == index) {
+                      return MyPlayer();
+                    } else if (barriers.contains(index)) {
+                      return MyPixel(
+                        innerColor: Colors.blue[800],
+                        outterColor: Colors.blue[800],
+                        //child: Text(index.toString()),
+                      );
+                    } else {
+                      return const MyPath(
+                        innerColor: Colors.yellow,
+                        outterColor: Colors.black,
+                        //child: Text(index.toString()),
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ),
@@ -156,13 +231,16 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     "Score: ",
                     style: TextStyle(color: Colors.white, fontSize: 40),
                   ),
-                  Text("P L A Y ",
-                      style: TextStyle(color: Colors.white, fontSize: 40)),
+                  GestureDetector(
+                    onTap: startGame,
+                    child: const Text("P L A Y ",
+                        style: TextStyle(color: Colors.white, fontSize: 40)),
+                  ),
                 ],
               ),
             ),
