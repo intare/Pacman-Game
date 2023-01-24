@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   var controller;
   int score = 0;
   bool paused = false;
-  AudioPlayer advancedPlayer = new AudioPlayer();
+  AudioPlayer advancedPlayer = AudioPlayer();
   AudioPlayer advancedPlayer2 = AudioPlayer();
   AudioCache audioInGame = AudioCache(prefix: 'assets/');
   AudioCache audioMunch = AudioCache(prefix: 'assets/');
@@ -140,13 +140,11 @@ class _HomePageState extends State<HomePage> {
   void startGame() {
     if (preGame) {
       advancedPlayer = AudioPlayer();
-      audioInGame = AudioCache(fixedPlayer: advancedPlayer);
-      audioPaused = AudioCache(fixedPlayer: advancedPlayer2);
-      audioInGame.loop('pacman_beginning.wav');
+      audioInGame.load('pacman_beginning.wav');
       preGame = false;
       getFood();
 
-      Timer.periodic(Duration(milliseconds: 10), (timer) {
+      Timer.periodic(const Duration(milliseconds: 10), (timer) {
         if (paused) {
         } else {
           advancedPlayer.resume();
@@ -293,10 +291,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getFood() {
-    for (int i = 0; i < numberOfSquares; i++)
+    for (int i = 0; i < numberOfSquares; i++) {
       if (!barriers.contains(i)) {
         food.add(i);
       }
+    }
   }
 
   void moveLeft() {
