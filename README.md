@@ -1,4 +1,4 @@
-# pacman
+# Pacman
 
 ThePacman game with Flutter Animations and Sound Effects compatible in both Andriod and IOS.
 
