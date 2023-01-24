@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pacman/path.dart';
@@ -16,6 +17,9 @@ class _HomePageState extends State<HomePage> {
   static int numberInRow = 11;
   int numberOfSquares = numberInRow * 17;
   int player = numberInRow * 15 + 1;
+  bool preGame = true;
+  bool mouthClosed = false;
+  int score = 0;
 
   List<int> barriers = [
     0,
@@ -36,111 +40,122 @@ class _HomePageState extends State<HomePage> {
     55,
     66,
     77,
+    99,
+    110,
+    121,
+    132,
+    143,
+    154,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    164,
+    153,
+    142,
+    131,
+    120,
+    109,
+    87,
+    76,
+    65,
+    54,
+    43,
+    32,
+    21,
     78,
     79,
     80,
+    100,
+    101,
+    102,
+    84,
+    85,
+    86,
+    106,
+    107,
+    108,
+    24,
+    35,
+    46,
+    57,
+    30,
+    41,
+    52,
+    63,
     81,
     70,
     59,
     61,
     72,
     83,
-    84,
-    85,
-    86,
-    87,
-    99,
-    100,
-    101,
-    102,
-    103,
-    114,
-    125,
-    127,
-    116,
-    105,
-    106,
-    107,
-    108,
-    110,
-    121,
-    123,
-    134,
-    145,
-    156,
-    132,
-    143,
-    158,
-    147,
-    148,
-    149,
-    160,
-    129,
-    140,
-    151,
-    162,
-    154,
-    165,
-    176,
-    177,
-    178,
-    179,
-    180,
-    181,
-    182,
-    183,
-    184,
-    185,
-    186,
-    175,
-    164,
-    153,
-    142,
-    121,
-    120,
-    109,
-    131,
-    87,
-    76,
-    65,
-    43,
-    54,
-    32,
-    21,
-    24,
-    35,
-    46,
-    57,
     26,
+    28,
     37,
     38,
     39,
-    28,
-    30,
-    41,
-    52,
-    63,
+    123,
+    134,
+    145,
+    129,
+    140,
+    151,
+    103,
+    114,
+    125,
+    105,
+    116,
+    127,
+    147,
+    148,
+    149,
   ];
 
-  String direction = 'right';
+  List<int> food = [];
+
+  String direction = "right";
 
   void startGame() {
-    Timer.periodic(const Duration(milliseconds: 150), (timer) {
+    preGame = false;
+    getFood();
+    Timer.periodic(const Duration(milliseconds: 120), (timer) {
+      setState(() {
+        mouthClosed = !mouthClosed;
+      });
+      if (food.contains(player)) {
+        food.remove(player);
+        score++;
+      }
       switch (direction) {
-        case 'left':
+        case "left":
           moveLeft();
           break;
-        case 'right':
-          moveRight;
+        case "right":
+          moveRight();
           break;
-        case 'up':
-          moveUp;
+        case "up":
+          moveUp();
           break;
-        case 'down':
-          moveDown;
+        case "down":
+          moveDown();
           break;
       }
     });
+  }
+
+  void getFood() {
+    for (int i = 0; i < numberOfSquares; i++) {
+      if (!barriers.contains(i)) {
+        food.add(i);
+      }
+    }
   }
 
   void moveLeft() {
@@ -208,7 +223,35 @@ class _HomePageState extends State<HomePage> {
                       crossAxisCount: numberInRow),
                   itemBuilder: (BuildContext context, int index) {
                     if (player == index) {
-                      return MyPlayer();
+                      switch (direction) {
+                        case "left":
+                          return Transform.rotate(
+                            angle: pi,
+                            child: MyPlayer(),
+                          );
+                          break;
+
+                        case "right":
+                          return MyPlayer();
+                          break;
+
+                        case "up":
+                          return Transform.rotate(
+                            angle: 3 * pi / 2,
+                            child: MyPlayer(),
+                          );
+                          break;
+
+                        case "down":
+                          return Transform.rotate(
+                            angle: pi / 2,
+                            child: MyPlayer(),
+                          );
+                          break;
+
+                        default:
+                          return MyPlayer();
+                      }
                     } else if (barriers.contains(index)) {
                       return MyPixel(
                         innerColor: Colors.blue[800],
@@ -233,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   const Text(
-                    "Score: ",
+                    "Score: " + (score).toString(),
                     style: TextStyle(color: Colors.white, fontSize: 40),
                   ),
                   GestureDetector(
