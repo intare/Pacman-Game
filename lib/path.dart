@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 
 class MyPath extends StatelessWidget {
   final innerColor;
-  final outterColor;
+  final outerColor;
   final child;
 
-  const MyPath({this.innerColor, this.outterColor, this.child});
-
+  MyPath({this.innerColor, this.outerColor, this.child});
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(1.0),
+      padding: const EdgeInsets.all(1),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(6),
         child: Container(
-          padding: const EdgeInsets.all(12),
-          color: outterColor,
+          padding: EdgeInsets.all(12),
+          color: outerColor,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(

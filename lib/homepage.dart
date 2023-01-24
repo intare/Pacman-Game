@@ -1,13 +1,15 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:pacman/ghost.dart';
-import 'package:pacman/ghost2.dart';
-import 'package:pacman/ghost3.dart';
-import 'package:pacman/path.dart';
-import 'package:pacman/pixel.dart';
-import 'package:pacman/player.dart';
+import 'package:flutter/rendering.dart';
+import 'package:packman/ghost.dart';
+import 'package:packman/ghost3.dart';
+import 'package:packman/ghost2.dart';
+import 'package:packman/path.dart';
+import 'package:packman/pixel.dart';
+import 'package:packman/player.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/audio_cache.dart';
 
@@ -28,12 +30,12 @@ class _HomePageState extends State<HomePage> {
   var controller;
   int score = 0;
   bool paused = false;
-  AudioPlayer advancedPlayer = AudioPlayer();
-  AudioPlayer advancedPlayer2 = AudioPlayer();
-  AudioCache audioInGame = AudioCache(prefix: 'assets/');
-  AudioCache audioMunch = AudioCache(prefix: 'assets/');
-  AudioCache audioDeath = AudioCache(prefix: 'assets/');
-  AudioCache audioPaused = AudioCache(prefix: 'assets/');
+  AudioPlayer advancedPlayer = new AudioPlayer();
+  AudioPlayer advancedPlayer2 = new AudioPlayer();
+  AudioCache audioInGame = new AudioCache(prefix: 'assets/');
+  AudioCache audioMunch = new AudioCache(prefix: 'assets/');
+  AudioCache audioDeath = new AudioCache(prefix: 'assets/');
+  AudioCache audioPaused = new AudioCache(prefix: 'assets/');
   List<int> barriers = [
     0,
     1,
@@ -139,12 +141,14 @@ class _HomePageState extends State<HomePage> {
 
   void startGame() {
     if (preGame) {
-      advancedPlayer = AudioPlayer();
-      audioInGame.load('pacman_beginning.wav');
+      advancedPlayer = new AudioPlayer();
+      audioInGame = new AudioCache(fixedPlayer: advancedPlayer);
+      audioPaused = new AudioCache(fixedPlayer: advancedPlayer2);
+      audioInGame.loop('pacman_beginning.wav');
       preGame = false;
       getFood();
 
-      Timer.periodic(const Duration(milliseconds: 10), (timer) {
+      Timer.periodic(Duration(milliseconds: 10), (timer) {
         if (paused) {
         } else {
           advancedPlayer.resume();
@@ -160,7 +164,7 @@ class _HomePageState extends State<HomePage> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: const Center(child: Text("Game Over!")),
+                  title: Center(child: Text("Game Over!")),
                   content: Text("Your Score : " + (score).toString()),
                   actions: [
                     RaisedButton(
@@ -202,14 +206,14 @@ class _HomePageState extends State<HomePage> {
               });
         }
       });
-      Timer.periodic(const Duration(milliseconds: 190), (timer) {
+      Timer.periodic(Duration(milliseconds: 190), (timer) {
         if (!paused) {
           moveGhost();
           moveGhost2();
           moveGhost3();
         }
       });
-      Timer.periodic(const Duration(milliseconds: 170), (timer) {
+      Timer.periodic(Duration(milliseconds: 170), (timer) {
         setState(() {
           mouthClosed = !mouthClosed;
         });
@@ -291,11 +295,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getFood() {
-    for (int i = 0; i < numberOfSquares; i++) {
+    for (int i = 0; i < numberOfSquares; i++)
       if (!barriers.contains(i)) {
         food.add(i);
       }
-    }
   }
 
   void moveLeft() {
@@ -669,18 +672,18 @@ class _HomePageState extends State<HomePage> {
                   padding: (MediaQuery.of(context).size.height.toInt() * 0.0139)
                               .toInt() >
                           10
-                      ? const EdgeInsets.only(top: 80)
-                      : const EdgeInsets.only(top: 20),
-                  physics: const NeverScrollableScrollPhysics(),
+                      ? EdgeInsets.only(top: 80)
+                      : EdgeInsets.only(top: 20),
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: numberOfSquares,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: numberInRow),
                   itemBuilder: (BuildContext context, int index) {
                     if (mouthClosed && player == index) {
                       return Padding(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(4),
                         child: Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                               color: Colors.yellow, shape: BoxShape.circle),
                         ),
                       );
@@ -723,13 +726,13 @@ class _HomePageState extends State<HomePage> {
                         // child: Text(index.toString()),
                       );
                     } else if (preGame || food.contains(index)) {
-                      return const MyPath(
+                      return MyPath(
                         innerColor: Colors.yellow,
                         outerColor: Colors.black,
                         // child: Text(index.toString()),
                       );
                     } else {
-                      return const MyPath(
+                      return MyPath(
                         innerColor: Colors.black,
                         outerColor: Colors.black,
                       );
@@ -749,16 +752,16 @@ class _HomePageState extends State<HomePage> {
                     // // (MediaQuery.of(context).size.height.toInt() * 0.0139)
                     //     .toInt()
                     //     .toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 23),
+                    style: TextStyle(color: Colors.white, fontSize: 23),
                   ),
                   GestureDetector(
                     onTap: startGame,
-                    child: const Text("P L A Y",
+                    child: Text("P L A Y",
                         style: TextStyle(color: Colors.white, fontSize: 23)),
                   ),
                   if (!paused)
                     GestureDetector(
-                      child: const Icon(
+                      child: Icon(
                         Icons.pause,
                         color: Colors.white,
                       ),
@@ -774,7 +777,7 @@ class _HomePageState extends State<HomePage> {
                             paused = false,
                             advancedPlayer2.stop(),
                           },
-                        const Icon(
+                        Icon(
                           Icons.play_arrow,
                           color: Colors.white,
                         )
@@ -782,7 +785,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   if (paused)
                     GestureDetector(
-                      child: const Icon(
+                      child: Icon(
                         Icons.play_arrow,
                         color: Colors.white,
                       ),

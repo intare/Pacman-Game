@@ -5,8 +5,7 @@ class MyPixel extends StatelessWidget {
   final outerColor;
   final child;
 
-  const MyPixel({this.innerColor, this.outerColor, this.child});
-
+  MyPixel({this.innerColor, this.outerColor, this.child});
   @override
   Widget build(BuildContext context) {
     return Padding(
